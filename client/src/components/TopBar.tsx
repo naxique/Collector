@@ -5,7 +5,7 @@ import MenuWrapper from './MenuWrapper';
 import SearchIcon from '@mui/icons-material/Search';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import { enUS } from '../locales/localeStrings';
+import { strings as localeStrings} from '../locales/localeStrings';
 import * as locales from '@mui/material/locale';
 import { Link, Outlet } from 'react-router-dom';
 
@@ -15,11 +15,10 @@ interface TopBarProps {
   themeChangeCallback: (darkMode: boolean) => void,
   localeChangeCallback: (l: SupportedLocales) => void,
   isLoggedIn: boolean,
-  localeStrings: typeof enUS,
-  currentLocale: SupportedLocales
+  locale: keyof typeof localeStrings
 }
 
-const TopBar = ({ themeChangeCallback, localeChangeCallback, isLoggedIn, currentLocale, localeStrings }: TopBarProps) => {
+const TopBar = ({ themeChangeCallback, localeChangeCallback, isLoggedIn, locale }: TopBarProps) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [darkModeSwitch, setDarkModeSwitch] = useState(true);
 
@@ -64,19 +63,19 @@ const TopBar = ({ themeChangeCallback, localeChangeCallback, isLoggedIn, current
                 <SearchIcon />
               </SearchIconWrapper>
               <StyledInputBase
-                placeholder={localeStrings.SearchItems}
+                placeholder={localeStrings[locale].SearchItems}
                 inputProps={{ 'aria-label': 'search' }}
               />
             </Search>
           </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
+          <Box sx={{ flexGrow: 0, marginRight: '.5rem' }}>
             { !isLoggedIn &&
               <Button key="login" component={Link} to='/login' sx={{ my: 2, color: 'white', display: 'block' }}>
-                {localeStrings.Login}
+                {localeStrings[locale].Login}
               </Button>
             } { isLoggedIn &&
-              <Tooltip title={localeStrings.OpenAccountPage}>
+              <Tooltip title={localeStrings[locale].OpenAccountPage}>
                 <IconButton component={Link} to={`/user/${1}`} aria-label='Account'>
                   <AccountCircle />
                 </IconButton>
@@ -85,7 +84,7 @@ const TopBar = ({ themeChangeCallback, localeChangeCallback, isLoggedIn, current
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title={localeStrings.OpenSettings}>
+            <Tooltip title={localeStrings[locale].OpenSettings}>
               <IconButton aria-label='Settings' onClick={handleSettingsMenuOpen}>
                 <SettingsIcon />
               </IconButton>
@@ -98,18 +97,18 @@ const TopBar = ({ themeChangeCallback, localeChangeCallback, isLoggedIn, current
     <MenuWrapper id='settingsMenu' onClose={handleSettingsMenuClose} anchorEl={menuAnchorEl}>
       <Box sx={{ margin: '.1rem 1rem' }}>
         <FormGroup>
-          <FormControlLabel control={<Switch checked={darkModeSwitch} onChange={handleThemeSwitch} />} label={localeStrings.DarkTheme} />
+          <FormControlLabel control={<Switch checked={darkModeSwitch} onChange={handleThemeSwitch} />} label={localeStrings[locale].DarkTheme} />
         </FormGroup>
       </Box>
       <Box sx={{ margin: '.3rem 1rem' }}>
         <FormGroup>
-        <InputLabel id="locale-select">{localeStrings.Language}</InputLabel>
+        <InputLabel id="locale-select">{localeStrings[locale].Language}</InputLabel>
           <Select
             labelId="locale-select"
             id="locale-select"
-            value={currentLocale}
+            value={locale}
             onChange={(e: any) => { localeChangeCallback(e.target.value as SupportedLocales) }}
-            label={localeStrings.Language}
+            label={localeStrings[locale].Language}
           >
             <MenuItem value='enUS'>English</MenuItem>
             <MenuItem value='ruRU'>Русский</MenuItem>
