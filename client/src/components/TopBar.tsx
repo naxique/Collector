@@ -1,10 +1,11 @@
 import { AppBar, Box, Toolbar, Typography, Container, Button, IconButton, FormGroup, FormControlLabel, Switch, Tooltip, InputLabel, Select, MenuItem } from '@mui/material/';
 import { Search, SearchIconWrapper, StyledInputBase } from './SearchBar';
-import React,  { useState } from 'react';
+import React,  { useEffect, useState } from 'react';
 import MenuWrapper from './MenuWrapper';
 import SearchIcon from '@mui/icons-material/Search';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { strings as localeStrings} from '../locales/localeStrings';
 import * as locales from '@mui/material/locale';
 import { Link, Outlet } from 'react-router-dom';
@@ -12,15 +13,22 @@ import { Link, Outlet } from 'react-router-dom';
 type SupportedLocales = keyof typeof locales;
 
 interface TopBarProps {
-  themeChangeCallback: (darkMode: boolean) => void,
+  theme: 'dark' | 'light',
+  themeChangeCallback: (darkMode: 'dark' | 'light') => void,
   localeChangeCallback: (l: SupportedLocales) => void,
+  logoutCallback: () => void,
   isLoggedIn: boolean,
   locale: keyof typeof localeStrings
 }
 
-const TopBar = ({ themeChangeCallback, localeChangeCallback, isLoggedIn, locale }: TopBarProps) => {
+const TopBar = ({ themeChangeCallback, localeChangeCallback, logoutCallback, isLoggedIn, locale, theme }: TopBarProps) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [darkModeSwitch, setDarkModeSwitch] = useState(true);
+
+  useEffect(() => {
+    if (theme === 'dark') setDarkModeSwitch(true);
+    else setDarkModeSwitch(false);
+  }, []);
 
   const handleSettingsMenuOpen = (e: React.MouseEvent<HTMLElement>) => {
     setMenuAnchorEl(e.currentTarget);
@@ -32,7 +40,7 @@ const TopBar = ({ themeChangeCallback, localeChangeCallback, isLoggedIn, locale 
 
   const handleThemeSwitch = () => {
     setDarkModeSwitch(!darkModeSwitch);
-    themeChangeCallback(!darkModeSwitch);
+    themeChangeCallback(!darkModeSwitch ? 'dark' : 'light');
   };
   
   return (<>
@@ -74,12 +82,17 @@ const TopBar = ({ themeChangeCallback, localeChangeCallback, isLoggedIn, locale 
               <Button key="login" component={Link} to='/login' sx={{ my: 2, color: 'white', display: 'block' }}>
                 {localeStrings[locale].Login}
               </Button>
-            } { isLoggedIn &&
+            } { isLoggedIn && <>
               <Tooltip title={localeStrings[locale].OpenAccountPage}>
-                <IconButton component={Link} to={`/user/${1}`} aria-label='Account'>
+                <IconButton component={Link} to='/user' aria-label='Account'>
                   <AccountCircle />
                 </IconButton>
               </Tooltip>
+              <Tooltip title={localeStrings[locale].Logout}>
+                <IconButton onClick={logoutCallback} aria-label='Logout'>
+                  <LogoutIcon />
+                </IconButton>
+              </Tooltip> </>
             }
           </Box>
 

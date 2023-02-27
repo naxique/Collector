@@ -1,7 +1,8 @@
 import { StyledEngineProvider, ThemeProvider, createTheme } from '@mui/material';
-import React,  { useState, useEffect, useMemo } from 'react';
-import { Routes, Route, BrowserRouter } from 'react-router-dom'
+import { useState, useMemo, useEffect } from 'react';
+import { Routes, Route, BrowserRouter, useNavigate } from 'react-router-dom'
 import * as locales from '@mui/material/locale';
+import * as network from './network/network'
 import { strings } from './locales/localeStrings';
 
 import TopBar from './components/TopBar';
@@ -11,18 +12,34 @@ import SignupPage from './pages/SignupPage';
 import UserPage from './pages/UserPage';
 import AdminPage from './pages/AdminPage';
 import CollectionPage from './pages/CollectionPage';
-import NewCollectionPage from './pages/NewCollectionPage';
 import ItemPage from './pages/ItemPage';
-import NewItemPage from './pages/NewItemPage';
 import SearchResultsPage from './pages/SearchResultsPage';
+import NotFoundPage from './pages/NotFoundPage';
+import { User } from './models/User';
+import { useCookies } from 'react-cookie';
 
 type SupportedLocales = keyof typeof locales;
-type Locale = keyof typeof strings
+type Locale = keyof typeof strings;
 
 function App() {
   const [locale, setLocale] = useState<SupportedLocales>('enUS');
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<User>();
+  const [cookies, setCookie, removeCookie] = useCookies(['user', 'theme', 'locale']);
+
+  useEffect(() => {
+    if (cookies.theme) setThemeMode(cookies.theme);
+    if (cookies.locale) setLocale(cookies.locale);
+    if (cookies.user) { network.setToken(cookies.user.token); setUser(cookies.user); setIsLoggedIn(true); }
+  }, []);
+
+  const setCookies = (key: any, value: string) => {
+    removeCookie(key, { path: '/' });
+    const exp = new Date();
+    exp.setTime(exp.getTime() + 8 * 60 * 60 * 1000); // expires in 8 hours
+    setCookie(key, value, { path: '/', expires: exp })
+  }
 
   let theme = createTheme({ palette: { mode: 'dark'} }, {locale: 'enUS'});
   theme = useMemo(
@@ -30,34 +47,49 @@ function App() {
     [locale, themeMode]
   );
 
-  const topbarThemeChangeHandle = (darkMode: boolean) => {
-    if (darkMode) setThemeMode('dark');
-    else setThemeMode('light');
+  const topbarThemeChangeHandle = (theme: 'dark' | 'light') => {
+    setThemeMode(theme);
+    setCookies('theme', theme);
   };
   const topbarLocaleChangeHandle = (l: SupportedLocales) => {
     setLocale(l);
+    setCookies('locale', l);
+  };
+
+  const userpageLoginSubmitCallback = (user: User) => {
+    setUser(user);
+    network.setToken(user.token);
+    setCookies('user', JSON.stringify(user));
+    setIsLoggedIn(true);
+  };
+
+  const topbarHandleLogout = () => {
+    setIsLoggedIn(false);
+    removeCookie('user', { path: '/' });
   };
 
   return (
     <StyledEngineProvider injectFirst> <ThemeProvider theme={theme}> <BrowserRouter>
       <Routes>
-        <Route path='/' element={ 
-          <TopBar
-            themeChangeCallback={topbarThemeChangeHandle}
-            localeChangeCallback={topbarLocaleChangeHandle}
-            isLoggedIn={isLoggedIn}
-            locale={locale as Locale}
-          /> 
+        <Route path='/' 
+          errorElement={ <NotFoundPage /> } 
+          element={ 
+            <TopBar
+              theme={themeMode}
+              themeChangeCallback={topbarThemeChangeHandle}
+              localeChangeCallback={topbarLocaleChangeHandle}
+              logoutCallback={topbarHandleLogout}
+              isLoggedIn={isLoggedIn}
+              locale={locale as Locale}
+            />
         }>
           <Route index element={ <HomePage locale={locale as Locale} /> } />
-          <Route path='login' element={ <LoginPage locale={locale as Locale} /> } />
+          <Route path='login' element={ <LoginPage locale={locale as Locale} loginSubmitCallback={userpageLoginSubmitCallback} /> } />
           <Route path='signup' element={ <SignupPage locale={locale as Locale} /> } />
-          <Route path='user' element={ <UserPage /> } />
+          <Route path='user' element={ <UserPage locale={locale as Locale} /> } />
           <Route path='admin' element={ <AdminPage /> } />
           <Route path='collection' element={ <CollectionPage /> } />
-          <Route path='newcollection' element={ <NewCollectionPage /> } />
           <Route path='item' element={ <ItemPage /> } />
-          <Route path='newitem' element={ <NewItemPage /> } />
           <Route path='search' element={ <SearchResultsPage /> } />
         </Route>
       </Routes>

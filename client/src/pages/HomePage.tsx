@@ -1,12 +1,46 @@
 import { Box, Button, Card, CardActions, CardContent, Chip, CssBaseline, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { strings as localeStrings } from '../locales/localeStrings';
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
+import * as network from '../network/network';
+import { Collection } from '../models/Collections';
+import { Tag } from '../models/Tag';
 
 interface HomePageProps {
   locale: keyof typeof localeStrings
 }
 
 const HomePage = ({ locale }: HomePageProps) => {
+  const [allCollections, setAllCollections] = useState<Collection[]>([]);
+  const [filteredCollections, setFilteredCollections] = useState<Collection[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
+
+  const getAllTags = async () => {
+    const t = await network.getAllTags();
+    if (t.length > 10) setTags(t.sort((a, b) => a.timesUsed - b.timesUsed).slice(0, 9));
+    else setTags(t);
+  };
+
+  const getAllCollections = async () => {
+    const c = await network.getAllCollections();
+    setAllCollections(c);
+    if (c.length > 3) setFilteredCollections(c.sort((a, b) => a.items.length - b.items.length).slice(0, 2));
+    else setFilteredCollections(c);
+  }
+
+  const getUsernameById = async (id: string): Promise<string> => {
+    try {
+      const u = await network.getUserById(id);
+      return u.username;
+    } catch (error) {
+      console.error(error);
+      return "";
+    }
+  };
+
+  useEffect(() => {
+    getAllCollections();
+    getAllTags();
+  }, []);
 
   return (
     <Box sx={{ margin: 'auto', width: '80%' }}>
@@ -24,61 +58,28 @@ const HomePage = ({ locale }: HomePageProps) => {
             </Box>
 
             <Grid container spacing={2}>
-              <Grid item xs>     
-                <Card sx={{ minWidth: 150 }}>
-                  <CardContent>
-                    <Typography variant="h5">
-                      Andy's bar
-                    </Typography>
-                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                      23 { localeStrings[locale].Items }
-                    </Typography>
-                    <Typography variant="body2">
-                      My collection of alcohol drinks
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small">{ localeStrings[locale].Open }</Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-
-              <Grid item xs>     
-                <Card sx={{ minWidth: 150 }}>
-                  <CardContent>
-                    <Typography variant="h5">
-                      boardzy mices
-                    </Typography>
-                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                      83 { localeStrings[locale].Items }
-                    </Typography>
-                    <Typography variant="body2">
-                      too many mices tbh
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small">{ localeStrings[locale].Open }</Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-              <Grid item xs>     
-                <Card sx={{ minWidth: 150 }}>
-                  <CardContent>
-                    <Typography variant="h5">
-                      Glarses
-                    </Typography>
-                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                      42 { localeStrings[locale].Items }
-                    </Typography>
-                    <Typography variant="body2">
-                      keebs
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small">{ localeStrings[locale].Open }</Button>
-                  </CardActions>
-                </Card>
-              </Grid>
+              { filteredCollections.map((c, i) => {
+                return (  
+                  <Grid item xs key={ 'collection'+i }>
+                    <Card sx={{ minWidth: 150 }}>
+                      <CardContent>
+                        <Typography variant="h5">
+                          { c.name }
+                        </Typography>
+                        <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                          { c.items.length.toString() + " " + localeStrings[locale].Items }
+                        </Typography>
+                        <Typography variant="body2">
+                          { c.description }
+                        </Typography>
+                      </CardContent>
+                      <CardActions>
+                        <Button size="small">{ localeStrings[locale].Open }</Button>
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                );
+              })}
             </Grid>
           </Grid>
 
@@ -88,19 +89,13 @@ const HomePage = ({ locale }: HomePageProps) => {
             </Box>
 
             <Grid container spacing={2}>
-              <Grid item xs>
-                <Chip label='Keyboards' />
-              </Grid>
-
-              <Grid item xs>
-                <Chip label='Books' />
-              </Grid>
-              <Grid item xs>
-                <Chip label='Videogames' />
-              </Grid>
-              <Grid item xs>
-                <Chip label='Poststamps' />
-              </Grid>
+              { tags.map((t, i) => {
+                return (
+                  <Grid item xs key={ 'tag'+i }>
+                    <Chip label={ t.name } />
+                  </Grid>
+                );
+              })}
             </Grid>
           </Grid>
 
