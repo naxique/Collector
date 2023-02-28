@@ -86,7 +86,7 @@ function App() {
           <Route index element={ <HomePage locale={locale as Locale} /> } />
           <Route path='login' element={ <LoginPage locale={locale as Locale} loginSubmitCallback={userpageLoginSubmitCallback} /> } />
           <Route path='signup' element={ <SignupPage locale={locale as Locale} /> } />
-          <Route path='user' element={ <UserPage locale={locale as Locale} /> } />
+          <Route path='user' element={ <UserPage locale={locale as Locale} cookies={ cookies } /> } />
           <Route path='admin' element={ <AdminPage /> } />
           <Route path='collection' element={ <CollectionPage /> } />
           <Route path='item' element={ <ItemPage /> } />

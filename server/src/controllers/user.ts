@@ -63,7 +63,9 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
       userId: user._id,
       email: user.email,
       isAdmin: user.isAdmin,
-      token: token
+      token: token,
+      description: user.description,
+      collections: user.collections 
     });
   } catch (error) {
     next(error);
@@ -98,7 +100,7 @@ export const getUser: RequestHandler<UserParams, unknown, unknown, unknown> = as
   const userId = request.params.userId;
   try {
     if (!userId) throw createHttpError(400, 'Bad request: missing parameters');
-    const user = await UserModel.findById(userId);
+    const user = await UserModel.findById(userId).select('-password');
     if (!user) throw createHttpError(404, 'User not found.');
     response.status(200).json(user);
   } catch (error) {

@@ -8,5 +8,6 @@ export interface Collection {
   imageUrl: string,
   items: Item[],
   name: string,
-  theme: string
+  theme: string,
+  _id: string
 }

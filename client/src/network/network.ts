@@ -60,8 +60,31 @@ export async function getUserById(id: string): Promise<User> {
   return response.json();
 }
 
+export interface PatchDescData {
+  uid: string,
+  newDesc: string
+}
+
+export async function patchUserDescripton(descData: PatchDescData) {
+  const response = await fetchData('/api/user/'+descData.uid+'/patchDesc', {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ description: descData.newDesc, token: token })
+  });
+  return response;
+}
+
 export async function getAllCollections(): Promise<Collection[]> {
   const response = await fetchData("/api/collection/", {
+    method: "GET"
+  });
+  return response.json();
+}
+
+export async function getCollectionById(id: string): Promise<Collection> {
+  const response = await fetchData("/api/collection/"+id, {
     method: "GET"
   });
   return response.json();
