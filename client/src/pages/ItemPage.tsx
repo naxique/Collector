@@ -126,7 +126,7 @@ const ItemPage = ({ locale, cookies }: ItemPageProps) => {
               <Typography>{ item?.name }</Typography>
             </>}
             { isNew &&
-              <TextField id="new-item-name" label="Item name" value={ newItemName } onChange={ handleNewItemName } variant="standard" sx={{ minWidth: '90%' }} />
+              <TextField id="new-item-name" label={localeStrings[locale].ItemName} value={ newItemName } onChange={ handleNewItemName } variant="standard" sx={{ minWidth: '90%' }} />
             }
           </Grid>
           { !isNew && <Grid item xs>
@@ -167,8 +167,8 @@ const ItemPage = ({ locale, cookies }: ItemPageProps) => {
                   <TextField
                     {...params}
                     variant="filled"
-                    label="Tags"
-                    placeholder="Enter"
+                    label={localeStrings[locale].ItemTags}
+                    placeholder={localeStrings[locale].EnterTag}
                   />
                 )}
               />

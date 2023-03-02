@@ -137,3 +137,30 @@ export async function newItem(body: NewItemBody) {
   });
   return response;
 }
+
+interface NewCollectionBody {
+  name: string,
+  authorId: string,
+  theme: string,
+  description: string,
+  //imageUrl: string,
+  customFields: CustomFields[]
+}
+
+export async function newCollection(body: NewCollectionBody) {
+  const response = await fetchData('/api/collection/', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ 
+      name: body.name,
+      authorId: body.authorId,
+      theme: body.theme,
+      description: body.description,
+      customFields: body.customFields,
+      token: token
+    })
+  });
+  return response;
+}
