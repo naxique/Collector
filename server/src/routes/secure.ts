@@ -8,7 +8,7 @@ const router = express.Router();
 router.post("/user/logout", UserController.logout);
 // request body: name, authorId, theme : string (!), description, imageUrl : string, customFields: object[{type: string, content: string}]
 router.post("/collection/", CollectionController.newCollection);
-// request body: name: string, tags: string[], customFields: object[{type: string, content: string}]
+// request body: name: string, tags: string[], authorId: string, customFields: object[{type: string, content: string}]
 router.post("/collection/:collectionId/item/", CollectionController.newCollectionItem);
 // request body: itemId: number, unlike: boolean, userId: string
 router.post("/collection/:collectionId/item/like", CollectionController.likeCollectionItem);

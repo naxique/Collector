@@ -2,6 +2,7 @@ import { Collection } from "../models/Collections";
 import { Item } from "../models/Item";
 import { Tag } from "../models/Tag";
 import { User } from "../models/User";
+import { CustomFields } from "../models/customFields";
 let token = '';
 
 export function setToken(t: string) {
@@ -110,4 +111,29 @@ export async function getItem(collectionId: string, itemId: number): Promise<Ite
     method: "GET"
   });
   return response.json();
+}
+
+interface NewItemBody {
+  name: string,
+  tags: string[],
+  authorId: string,
+  collectionId: string,
+  customFields: CustomFields[]
+}
+
+export async function newItem(body: NewItemBody) {
+  const response = await fetchData('/api/collection/'+body.collectionId+'/item', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ 
+      name: body.name,
+      tags: body.tags,
+      authorId: body.authorId,
+      customFields: body.customFields,
+      token: token
+    })
+  });
+  return response;
 }

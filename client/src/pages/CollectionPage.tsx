@@ -23,7 +23,7 @@ const CollectionPage = ({ locale, cookies }: CollectionPageProps) => {
   const [newCollection, setNewCollection] = useState(false);
 
   const getAuthor = async (authorId: string | undefined) => {
-    if (!authorId) console.log(authorId);
+    if (!authorId) setTimeout(() => getAuthor(authorId), 1000);
     else {
       const u = await network.getUserById(authorId);
       if (cookies.user?.userId === u._id || cookies.user?.isAdmin) setIsAuthor(true);
@@ -49,7 +49,7 @@ const CollectionPage = ({ locale, cookies }: CollectionPageProps) => {
   };
 
   const handleNewItem = () => {
-    console.log('yes')
+    navigate('/collection/'+collection?._id+'/new');
   };
 
   const handleEditCollection = () => {
@@ -65,8 +65,7 @@ const CollectionPage = ({ locale, cookies }: CollectionPageProps) => {
   }, []);
 
   useEffect(() => {
-    if (collection?.authorId !== cookies.user?.userId) getAuthor(collection?.authorId);
-    else setIsAuthor(true);
+    getAuthor(collection?.authorId);
   }, [collection]);
 
   return (

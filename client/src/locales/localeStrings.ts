@@ -3,6 +3,7 @@ export const strings = {
     SearchItems: 'Search items...',
     OpenAccountPage: 'Open account page',
     OpenSettings: 'Open settings',
+    GoBack: 'Back',
     Logout: 'Log out',
     Login: 'Log in',
     Signup: 'Sign up',
@@ -43,11 +44,13 @@ export const strings = {
     FillAllTheFields: 'Please fill all the fields',
     PasswordsDoesntMeet: 'Passwords doesn\'t meet',
     UsernameTooShort: 'Username is too short',
-    UsernameAndEmailShoulntContainSpaces: 'Username and e-mail shouldn\'t contain spaces'
+    UsernameAndEmailShoulntContainSpaces: 'Username and e-mail shouldn\'t contain spaces',
+    NotAuthenticated: 'User not authenticated',
   }, ruRU: {
     SearchItems: 'Поиск предметов...',
     OpenAccountPage: 'Открыть страницу пользователя',
     OpenSettings: 'Открыть настройки',
+    GoBack: 'Назад',
     Login: 'ВОЙТИ',
     Logout: 'Выйти из аккаунта',
     Signup: 'РЕГИСТРАЦИЯ',
@@ -90,6 +93,7 @@ export const strings = {
     FillAllTheFields: 'Пожалуйста, заполните все поля',
     PasswordsDoesntMeet: 'Пароли не совпадают',
     UsernameTooShort: 'Имя пользователя слишком короткое',
-    UsernameAndEmailShoulntContainSpaces: 'Имя пользователя или e-mail не должны содержать пробелы'
+    UsernameAndEmailShoulntContainSpaces: 'Имя пользователя или e-mail не должны содержать пробелы',
+    NotAuthenticated: 'Пользователь не найден',
   }
 };

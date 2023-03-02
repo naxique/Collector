@@ -87,12 +87,14 @@ export const deleteCollection: RequestHandler<CollectionParams, unknown, unknown
 interface NewItemBody {
   name?: string,
   tags?: string[],
+  authorId?: string,
   customFields?: CustomFields[]
 }
 
 export const newCollectionItem: RequestHandler<CollectionParams, unknown, NewItemBody, unknown> = async (request, response, next) => {
   const name = request.body.name,
         tags = request.body.tags,
+        authorId = request.body.authorId,
         customFields = request.body.customFields,
         collectionId = request.params.collectionId;
   try {
@@ -109,6 +111,7 @@ export const newCollectionItem: RequestHandler<CollectionParams, unknown, NewIte
       commentIds: [""],
       customFields: [{}],
       collectionId: collection._id,
+      authorId: authorId,
       createdAt: Date.now()
     };
     if (customFields) newItem.customFields = customFields;
@@ -233,8 +236,9 @@ export const getCollectionItem: RequestHandler<GetItemParams, unknown, unknown, 
     if (!collectionId || !itemId) throw createHttpError(400, 'Bad request: missing parameters');
     const collection = await CollectionModel.findById(collectionId);
     if (!collection) throw createHttpError(404, 'Collection not found');
-    if (itemId > collection.items.length || itemId < 1) throw createHttpError(404, 'Item not found');
-    response.send(200).json(collection.items[itemId]);
+    const item = collection.items[itemId];
+    if (!item) throw createHttpError(404, 'Item not found');
+    response.status(200).json(item);
   } catch (error) {
     next(error);
   }
