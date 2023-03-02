@@ -1,4 +1,5 @@
 import { Collection } from "../models/Collections";
+import { Item } from "../models/Item";
 import { Tag } from "../models/Tag";
 import { User } from "../models/User";
 let token = '';
@@ -92,6 +93,20 @@ export async function getCollectionById(id: string): Promise<Collection> {
 
 export async function getAllTags(): Promise<Tag[]> {
   const response = await fetchData("/api/tags/", {
+    method: "GET"
+  });
+  return response.json();
+}
+
+export async function getAllItems(): Promise<Item[]> {
+  const response = await fetchData("/api/collection/items/", {
+    method: "GET"
+  });
+  return response.json();
+}
+
+export async function getItem(collectionId: string, itemId: number): Promise<Item> {
+  const response = await fetchData("/api/collection/"+collectionId+"/item/"+itemId, {
     method: "GET"
   });
   return response.json();

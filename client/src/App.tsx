@@ -1,6 +1,6 @@
 import { StyledEngineProvider, ThemeProvider, createTheme } from '@mui/material';
 import { useState, useMemo, useEffect } from 'react';
-import { Routes, Route, BrowserRouter, useNavigate } from 'react-router-dom'
+import { Routes, Route, BrowserRouter } from 'react-router-dom'
 import * as locales from '@mui/material/locale';
 import * as network from './network/network'
 import { strings } from './locales/localeStrings';
@@ -81,15 +81,17 @@ function App() {
               logoutCallback={topbarHandleLogout}
               isLoggedIn={isLoggedIn}
               locale={locale as Locale}
+              cookies={ cookies }
             />
         }>
+          <Route errorElement={ <NotFoundPage /> } />
           <Route index element={ <HomePage locale={locale as Locale} /> } />
           <Route path='login' element={ <LoginPage locale={locale as Locale} loginSubmitCallback={userpageLoginSubmitCallback} /> } />
           <Route path='signup' element={ <SignupPage locale={locale as Locale} /> } />
-          <Route path='user' element={ <UserPage locale={locale as Locale} cookies={ cookies } /> } />
+          <Route path='user/:userId' element={ <UserPage locale={locale as Locale} cookies={ cookies } /> } />
           <Route path='admin' element={ <AdminPage /> } />
-          <Route path='collection' element={ <CollectionPage /> } />
-          <Route path='item' element={ <ItemPage /> } />
+          <Route path='collection/:collectionId' element={ <CollectionPage locale={locale as Locale} cookies={ cookies } /> } />
+          <Route path='collection/:collectionId/:itemId' element={ <ItemPage locale={locale as Locale} cookies={ cookies } /> } />
           <Route path='search' element={ <SearchResultsPage /> } />
         </Route>
       </Routes>

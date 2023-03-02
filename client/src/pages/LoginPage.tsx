@@ -43,7 +43,7 @@ const LoginPage = ({ locale, loginSubmitCallback }: LoginPageProps) => {
       <CssBaseline />
 
       <Box sx={{ textAlign: 'center', margin: '2.5rem' }}>
-        <Typography component='h2' variant='h3'>{ localeStrings[locale].Log_in }</Typography>
+        <Typography component='h2' variant='h3'>{ localeStrings[locale].Login }</Typography>
       </Box>
 
       <FormGroup sx={{ alignContent: 'center', justifyContent: 'center' }}>

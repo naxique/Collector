@@ -46,7 +46,7 @@ const SignupPage = ({ locale }: SignupPageProps) => {
       <CssBaseline />
 
       <Box sx={{ textAlign: 'center', margin: '2.5rem' }}>
-        <Typography component='h2' variant='h3'>{ localeStrings[locale].Sign_up }</Typography>
+        <Typography component='h2' variant='h3'>{ localeStrings[locale].Signup }</Typography>
       </Box>
 
       <FormGroup sx={{ alignContent: 'center', justifyContent: 'center' }}>

@@ -6,7 +6,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import * as network from '../network/network'
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { User } from "../models/User";
 import { Collection } from "../models/Collections";
 
@@ -16,7 +16,9 @@ interface UserPageProps {
 }
 
 const UserPage = ({ locale, cookies }: UserPageProps) => {
+  const params = useParams();
   const [user, setUser] = useState<User>();
+  const [isReadOnly, setIsReadOnly] = useState(true);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [description, setDescription] = useState('');
   const [editDescription, setEditDescription] = useState(false);
@@ -35,18 +37,22 @@ const UserPage = ({ locale, cookies }: UserPageProps) => {
     }
   };
 
-  const getUser = async (uid: string) => {
-    const u = await network.getUserById(uid);
-    getCollections(u.collections);
-    setUser(u);
-    if (u.description !== '') setDescription(u.description);
-    else setDescription('-');
+  const getUser = async () => {
+    if (!params.userId) navigate('/login');
+    else {
+      const u = await network.getUserById(params.userId);
+      if (cookies.user?.userId === params.userId || cookies.user?.isAdmin) setIsReadOnly(false);
+      if (u.description !== '') setDescription(u.description);
+      else setDescription('-');
+      getCollections(u.collections);
+      setUser(u);
+    }
   };
 
   useEffect(() => {
     if (!cookies.user) navigate('/login');
     setCollections([]);
-    getUser(cookies.user.userId);
+    getUser();
   }, []);
 
   useEffect(() => {
@@ -54,11 +60,11 @@ const UserPage = ({ locale, cookies }: UserPageProps) => {
   }, [collections]);
 
   const handleOpenCollection = (cid: string) => {
-    console.log(cid);
+    navigate('/collection/'+cid);
   };
 
   const handleAddNewCollection = () => {
-    console.log('yes');
+    navigate('/collection/new');
   };
 
   const handleEditDescription = () => {
@@ -84,7 +90,7 @@ const UserPage = ({ locale, cookies }: UserPageProps) => {
       <Grid container direction='column' spacing={2} sx={{ padding: '2rem' }}>
         <Grid item container direction='row' xs>
           <Typography component='h2' variant='h3' sx={{ margin: '1rem' }}>{ user?.username }</Typography>
-          { user && user.isAdmin &&
+          { user?._id === cookies.user?.userId && user?.isAdmin &&
             <Grid item sx={{ margin: '1.5rem' }}>
               <Button key='adminpage' component={Link} to='/admin' variant='contained' color='error'>
                 { localeStrings[locale].AdminPage }
@@ -96,11 +102,11 @@ const UserPage = ({ locale, cookies }: UserPageProps) => {
           { !editDescription &&
             <>
               <Typography variant='body2' sx={{ margin: '1rem' }}>{ description }</Typography>
-              <Grid item xs>
+              { !isReadOnly && <Grid item xs>
                 <IconButton onClick={ handleEditDescription }>
                   <EditIcon />
                 </IconButton>
-              </Grid>
+              </Grid> }
             </>
           }
           { editDescription &&
@@ -121,9 +127,9 @@ const UserPage = ({ locale, cookies }: UserPageProps) => {
       <Grid container direction='row' sx={{ margin: '2rem' }}>
         <Typography component='h3' variant='h4'>{ localeStrings[locale].YourCollections }</Typography>
         <Grid item xs>
-          <IconButton onClick={ handleAddNewCollection } sx={{ margin: '.1rem' }}>
+          { !isReadOnly && <IconButton onClick={ handleAddNewCollection } sx={{ margin: '.1rem' }}>
             <AddCircleOutlineIcon />
-          </IconButton>
+          </IconButton> }
         </Grid>
       </Grid>
       <Grid container>

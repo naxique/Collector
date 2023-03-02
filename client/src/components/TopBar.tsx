@@ -18,10 +18,11 @@ interface TopBarProps {
   localeChangeCallback: (l: SupportedLocales) => void,
   logoutCallback: () => void,
   isLoggedIn: boolean,
-  locale: keyof typeof localeStrings
+  locale: keyof typeof localeStrings,
+  cookies: any
 }
 
-const TopBar = ({ themeChangeCallback, localeChangeCallback, logoutCallback, isLoggedIn, locale, theme }: TopBarProps) => {
+const TopBar = ({ themeChangeCallback, localeChangeCallback, logoutCallback, isLoggedIn, locale, theme, cookies }: TopBarProps) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [darkModeSwitch, setDarkModeSwitch] = useState(true);
 
@@ -84,7 +85,7 @@ const TopBar = ({ themeChangeCallback, localeChangeCallback, logoutCallback, isL
               </Button>
             } { isLoggedIn && <>
               <Tooltip title={localeStrings[locale].OpenAccountPage}>
-                <IconButton component={Link} to='/user' aria-label='Account'>
+                <IconButton href={'/user/'+cookies.user.userId} aria-label='Account'>
                   <AccountCircle />
                 </IconButton>
               </Tooltip>

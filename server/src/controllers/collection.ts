@@ -1,8 +1,13 @@
-import { RequestHandler } from 'express'
+import { RequestHandler, response } from 'express'
 import CollectionModel from '../models/collection'
 import * as TagsController from '../controllers/tags';
 import { newCollection as pushUserCollection, deleteCollection as deleteUserCollection } from './user';
 import createHttpError from 'http-errors';
+
+interface CustomFields {
+  type: string,
+  content: string
+}
 
 interface NewCollectionBody { 
   name?: string,
@@ -10,7 +15,7 @@ interface NewCollectionBody {
   theme?: string, 
   description?: string,
   imageUrl?: string,
-  customFields?: object[]
+  customFields?: CustomFields[]
 }
 
 export const newCollection: RequestHandler<unknown, unknown, NewCollectionBody, unknown> =  async (request, response, next) => {
@@ -82,7 +87,7 @@ export const deleteCollection: RequestHandler<CollectionParams, unknown, unknown
 interface NewItemBody {
   name?: string,
   tags?: string[],
-  customFields?: object[]
+  customFields?: CustomFields[]
 }
 
 export const newCollectionItem: RequestHandler<CollectionParams, unknown, NewItemBody, unknown> = async (request, response, next) => {
@@ -102,7 +107,9 @@ export const newCollectionItem: RequestHandler<CollectionParams, unknown, NewIte
       tags: tags,
       likedBy: [""],
       commentIds: [""],
-      customFields: [{}]
+      customFields: [{}],
+      collectionId: collection._id,
+      createdAt: Date.now()
     };
     if (customFields) newItem.customFields = customFields;
     newItem.tags.map((el) => TagsController.newTag(el, next));
@@ -120,7 +127,7 @@ interface EditItemBody {
   itemId?: number,
   name?: string,
   tags?: string[],
-  customFields?: object[]
+  customFields?: CustomFields[]
 }
 
 export const patchCollectionItem: RequestHandler<CollectionParams, unknown, EditItemBody, unknown> = async (request, response, next) => {
@@ -214,13 +221,19 @@ export const getAllCollectionItems: RequestHandler<CollectionParams, unknown, un
   }
 };
 
-export const getCollectionItem: RequestHandler<CollectionParams, unknown, ItemId, unknown> = async (request, response, next) => {
+interface GetItemParams {
+  collectionId: string,
+  itemId: number
+}
+
+export const getCollectionItem: RequestHandler<GetItemParams, unknown, unknown, unknown> = async (request, response, next) => {
   const collectionId = request.params.collectionId,
-        itemId = request.body.itemId;
+        itemId = request.params.itemId;
   try {
     if (!collectionId || !itemId) throw createHttpError(400, 'Bad request: missing parameters');
     const collection = await CollectionModel.findById(collectionId);
     if (!collection) throw createHttpError(404, 'Collection not found');
+    if (itemId > collection.items.length || itemId < 1) throw createHttpError(404, 'Item not found');
     response.send(200).json(collection.items[itemId]);
   } catch (error) {
     next(error);

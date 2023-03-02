@@ -11,8 +11,7 @@ router.get("/user/:userId", UserController.getUser);
 router.get("/collection/", CollectionController.getAllCollections);
 router.get("/collection/:collectionId", CollectionController.getCollection);
 router.get("/collection/:collectionId/items/", CollectionController.getAllCollectionItems);
-// request body: itemId: number
-router.get("/collection/:collectionId/item/", CollectionController.getCollectionItem);
+router.get("/collection/:collectionId/item/:itemId", CollectionController.getCollectionItem);
 router.get("/tags/", TagsController.getAllTags);
 router.get("/comments/", CommentsController.getAllComments);
 router.get("/comments/:commentId", CommentsController.getCommentById);

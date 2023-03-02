@@ -6,5 +6,7 @@ export interface Item {
   commentIds: string[],
   customFields: CustomFields[],
   likedBy: string[],
-  tags: string[]
+  tags: string[],
+  collectionId: string,
+  createdAt: number
 }

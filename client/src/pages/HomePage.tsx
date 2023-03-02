@@ -1,40 +1,47 @@
-import { Box, Button, Card, CardActions, CardContent, Chip, CssBaseline, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, Button, Card, CardActions, CardContent, Chip, CssBaseline, Grid, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { strings as localeStrings } from '../locales/localeStrings';
 import { useState, useEffect } from 'react'
 import * as network from '../network/network';
 import { Collection } from '../models/Collections';
 import { Tag } from '../models/Tag';
+import { useNavigate } from 'react-router-dom';
+import { Item } from '../models/Item';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 interface HomePageProps {
   locale: keyof typeof localeStrings
 }
 
 const HomePage = ({ locale }: HomePageProps) => {
+  const navigate = useNavigate();
   const [allCollections, setAllCollections] = useState<Collection[]>([]);
+  const [allItems, setAllItems] = useState<Item[]>([]);
   const [filteredCollections, setFilteredCollections] = useState<Collection[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
 
   const getAllTags = async () => {
     const t = await network.getAllTags();
-    if (t.length > 10) setTags(t.sort((a, b) => a.timesUsed - b.timesUsed).slice(0, 9));
-    else setTags(t);
+    if (t.length > 10) setTags(t.sort((a, b) => b.timesUsed - a.timesUsed).slice(0, 10));
+    else setTags(t.sort((a, b) => b.timesUsed - a.timesUsed));
   };
 
   const getAllCollections = async () => {
     const c = await network.getAllCollections();
     setAllCollections(c);
-    if (c.length > 3) setFilteredCollections(c.sort((a, b) => a.items.length - b.items.length).slice(0, 2));
-    else setFilteredCollections(c);
-  }
+    getAllItems(c);
+    if (c.length > 3) setFilteredCollections(c.sort((a, b) => b.items.length - a.items.length).slice(0, 3));
+    else setFilteredCollections(c.sort((a, b) => b.items.length - a.items.length));
+  };
 
-  const getUsernameById = async (id: string): Promise<string> => {
-    try {
-      const u = await network.getUserById(id);
-      return u.username;
-    } catch (error) {
-      console.error(error);
-      return "";
-    }
+  const getAllItems = async (c: Collection[]) => {
+    let items: Item[] = [];
+    c.map(col => col.items.map(i => items.push(i)));
+    if (items.length > 5) setAllItems(items.sort((a, b) => b.createdAt - a.createdAt).slice(0, 5));
+    else setAllItems(items.sort((a, b) => b.createdAt - a.createdAt));
+  };
+
+  const handleOpenCollection = (cid: string) => {
+    navigate('/collection/'+cid);
   };
 
   useEffect(() => {
@@ -74,7 +81,7 @@ const HomePage = ({ locale }: HomePageProps) => {
                         </Typography>
                       </CardContent>
                       <CardActions>
-                        <Button size="small">{ localeStrings[locale].Open }</Button>
+                        <Button size="small" onClick={() => handleOpenCollection(c._id)}>{ localeStrings[locale].Open }</Button>
                       </CardActions>
                     </Card>
                   </Grid>
@@ -111,25 +118,26 @@ const HomePage = ({ locale }: HomePageProps) => {
                     <TableCell>{ localeStrings[locale].ItemName }</TableCell>
                     <TableCell align="right">{ localeStrings[locale].CollectionName }</TableCell>
                     <TableCell align="right">{ localeStrings[locale].Timestamp }</TableCell>
+                    <TableCell align="right"> </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                    <TableRow key='mockup1' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                      <TableCell component="th" scope="row">Finalmouse Ultralight Cape Town</TableCell>
-                      <TableCell align="right">boardzy mices</TableCell>
-                      <TableCell align="right">10 { localeStrings[locale].Minutes } { localeStrings[locale].Ago }</TableCell>
-                    </TableRow>
- 
-                    <TableRow key='mockup2' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                      <TableCell component="th" scope="row">Homemade chacha</TableCell>
-                      <TableCell align="right">Andy's bar</TableCell>
-                      <TableCell align="right">7 { localeStrings[locale].Hours } { localeStrings[locale].Ago }</TableCell>
-                    </TableRow>
-                    <TableRow key='mockup3' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                      <TableCell component="th" scope="row">Марка Швеции 60-х годов</TableCell>
-                      <TableCell align="right">Марки</TableCell>
-                      <TableCell align="right">30 { localeStrings[locale].Days } { localeStrings[locale].Ago }</TableCell>
-                    </TableRow>
+                  {allItems.map((item, i) => {
+                    return (
+                      <TableRow key={'item'+i} sx={{ '&:last-child td, &:last-child th': { border: 0 }, marginBottom: '2rem' }}>
+                        <TableCell component="th" scope="row">{ item.name }</TableCell>
+                        <TableCell align="right">{ allCollections.filter((c) => c._id === item.collectionId)[0].name }</TableCell>
+                        <TableCell align="right">{
+                          new Date(item.createdAt).toLocaleString(locale === 'enUS' ? 'en-GB' : 'ru-RU', { dateStyle: "short" , timeStyle: "short" })
+                        }</TableCell>
+                        <TableCell align="right">
+                          <IconButton onClick={ () => handleOpenCollection(item.collectionId) }>
+                            <OpenInNewIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
